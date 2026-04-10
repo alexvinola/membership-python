@@ -1,23 +1,28 @@
 from datetime import datetime
 from pydantic import BaseModel, EmailStr
 
+from app.models.user import Plan
+
 
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
-    full_name: str | None = None
+    name: str | None = None
 
 
 class UserUpdate(BaseModel):
-    full_name: str | None = None
+    name: str | None = None
+    image: str | None = None
 
 
 class UserOut(BaseModel):
     model_config = {"from_attributes": True}
 
-    id: int
+    id: str
     email: EmailStr
-    full_name: str | None
-    is_active: bool
-    is_verified: bool
-    created_at: datetime
+    name: str | None
+    plan: Plan
+    status: str
+    emailVerified: datetime | None
+    image: str | None
+    trialEndsAt: datetime | None

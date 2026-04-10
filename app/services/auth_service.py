@@ -17,15 +17,15 @@ class AuthService:
         user = self._users.create(
             email=data.email,
             hashed_password=hash_password(data.password),
-            full_name=data.full_name,
+            name=data.name,
         )
         return UserOut.model_validate(user)
 
     def login(self, email: str, password: str) -> TokenOut:
         user = self._users.get_by_email(email)
-        if not user or not verify_password(password, user.hashed_password):
+        if not user or not verify_password(password, user.password):
             raise UnauthorizedException("Invalid credentials")
-        if not user.is_active:
-            raise UnauthorizedException("Account is inactive")
+        if user.status != "active":
+            raise UnauthorizedException("Account is not active")
         token = create_access_token(subject=user.id)
         return TokenOut(access_token=token)

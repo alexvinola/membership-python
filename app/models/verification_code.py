@@ -1,5 +1,7 @@
+import uuid
 from datetime import datetime, timezone
-from sqlalchemy import DateTime, ForeignKey, Integer, String
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -8,14 +10,18 @@ from app.core.database import Base
 class VerificationCode(Base):
     __tablename__ = "verification_codes"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    code: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
-    purpose: Mapped[str] = mapped_column(String(32), nullable=False)  # "email_verify" | "password_reset"
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    code: Mapped[str] = mapped_column(String(16), nullable=False)
+    email: Mapped[str] = mapped_column(String(255), nullable=False)
+    userId: Mapped[str | None] = mapped_column(String, ForeignKey("users.id"), nullable=True)
+    expiresAt: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    createdAt: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
 
-    user = relationship("User", backref="verification_codes")
+    user = relationship("User", back_populates="verificationCodes")
+
+    __table_args__ = (
+        Index("ix_verification_codes_email_code", "email", "code"),
+    )

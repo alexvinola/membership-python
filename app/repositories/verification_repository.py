@@ -8,31 +8,31 @@ class VerificationRepository:
     def __init__(self, db: Session) -> None:
         self._db = db
 
-    def create(self, user_id: int, code: str, purpose: str, expires_at: datetime) -> VerificationCode:
+    def create(self, email: str, code: str, expires_at: datetime, user_id: str | None = None) -> VerificationCode:
         record = VerificationCode(
-            user_id=user_id,
+            email=email,
             code=code,
-            purpose=purpose,
-            expires_at=expires_at,
+            userId=user_id,
+            expiresAt=expires_at,
         )
         self._db.add(record)
         self._db.commit()
         self._db.refresh(record)
         return record
 
-    def get_valid(self, code: str, purpose: str) -> VerificationCode | None:
+    def get_valid(self, email: str, code: str) -> VerificationCode | None:
         now = datetime.now(timezone.utc)
         return (
             self._db.query(VerificationCode)
             .filter(
+                VerificationCode.email == email,
                 VerificationCode.code == code,
-                VerificationCode.purpose == purpose,
-                VerificationCode.expires_at > now,
-                VerificationCode.used_at.is_(None),
+                VerificationCode.expiresAt > now,
+                VerificationCode.used.is_(False),
             )
             .first()
         )
 
     def mark_used(self, record: VerificationCode) -> None:
-        record.used_at = datetime.now(timezone.utc)
+        record.used = True
         self._db.commit()

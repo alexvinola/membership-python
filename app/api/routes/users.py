@@ -14,16 +14,16 @@ _bearer = HTTPBearer()
 
 def _current_user_id(
     credentials: HTTPAuthorizationCredentials = Depends(_bearer),
-) -> int:
+) -> str:
     user_id = decode_access_token(credentials.credentials)
     if user_id is None:
         raise UnauthorizedException()
-    return int(user_id)
+    return user_id
 
 
 @router.get("/me", response_model=UserOut)
 def get_me(
-    user_id: int = Depends(_current_user_id),
+    user_id: str = Depends(_current_user_id),
     db: Session = Depends(get_db),
 ):
     user = UserRepository(db).get_by_id(user_id)
@@ -35,7 +35,7 @@ def get_me(
 @router.patch("/me", response_model=UserOut)
 def update_me(
     data: UserUpdate,
-    user_id: int = Depends(_current_user_id),
+    user_id: str = Depends(_current_user_id),
     db: Session = Depends(get_db),
 ):
     repo = UserRepository(db)
