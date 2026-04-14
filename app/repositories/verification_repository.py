@@ -16,11 +16,10 @@ class VerificationRepository:
             expiresAt=expires_at,
         )
         self._db.add(record)
-        self._db.commit()
-        self._db.refresh(record)
+        self._db.flush()
         return record
 
-    def get_valid(self, email: str, code: str) -> VerificationCode | None:
+    def get_valid(self, email: str, code: str) -> type[VerificationCode] | None:
         now = datetime.now(timezone.utc)
         return (
             self._db.query(VerificationCode)
@@ -35,4 +34,4 @@ class VerificationRepository:
 
     def mark_used(self, record: VerificationCode) -> None:
         record.used = True
-        self._db.commit()
+        self._db.flush()

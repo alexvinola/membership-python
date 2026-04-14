@@ -7,10 +7,10 @@ from app.core.database import Base
 
 
 class Account(Base):
-    __tablename__ = "accounts"
+    __tablename__ = "Account"
 
     id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    userId: Mapped[str] = mapped_column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    userId: Mapped[str] = mapped_column(String, ForeignKey("User.id", ondelete="CASCADE"), nullable=False)
     type: Mapped[str] = mapped_column(String(64), nullable=False)
     provider: Mapped[str] = mapped_column(String(64), nullable=False)
     providerAccountId: Mapped[str] = mapped_column(String(255), nullable=False)

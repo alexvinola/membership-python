@@ -8,7 +8,7 @@ from app.core.database import Base
 
 
 class WebhookEvent(Base):
-    __tablename__ = "webhook_events"
+    __tablename__ = "WebhookEvent"
 
     id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     stripeEventId: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
@@ -17,6 +17,6 @@ class WebhookEvent(Base):
     processedAt: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
-    userId: Mapped[str] = mapped_column(String, ForeignKey("users.id"), nullable=False)
+    userId: Mapped[str] = mapped_column(String, ForeignKey("User.id"), nullable=False)
 
     user = relationship("User", back_populates="webhookEvents")

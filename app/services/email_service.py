@@ -18,8 +18,10 @@ class EmailService:
 
         try:
             with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
-                if settings.SMTP_USER:
-                    server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+                server.ehlo()
+                server.starttls()
+                server.ehlo()
+                server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
                 server.sendmail(settings.EMAILS_FROM, to, msg.as_string())
         except Exception:
             logger.exception("Failed to send email to %s", to)

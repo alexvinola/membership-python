@@ -16,7 +16,6 @@ _jinja = Environment(
 def _generate_code(length: int = 6) -> str:
     return "".join(random.choices(string.digits, k=length))
 
-
 class VerificationService:
     def __init__(self, repo: VerificationRepository, email_svc: EmailService) -> None:
         self._repo = repo
@@ -43,3 +42,4 @@ class VerificationService:
             return None
         self._repo.mark_used(record)
         return record.userId
+
