@@ -11,10 +11,16 @@ class TokenOut(BaseModel):
     token_type: str = "bearer"
 
 
+class VerifyEmailRequest(BaseModel):
+    email: EmailStr
+    code: str
+
+
 class PasswordResetRequest(BaseModel):
     email: EmailStr
 
 
 class PasswordResetConfirm(BaseModel):
-    token: str
+    email: EmailStr
+    code: str
     new_password: str

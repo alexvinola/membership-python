@@ -35,11 +35,10 @@ class VerificationService:
         body = _jinja.get_template("reset_password.html").render(code=code)
         self._email.send(email, "Reset your password", body)
 
-    def consume(self, email: str, code: str) -> str | None:
-        """Returns the userId associated with the code, or None if invalid."""
+    def verify_email(self, email: str, code: str) -> bool:
         record = self._repo.get_valid(email=email, code=code)
         if record is None:
-            return None
+            return False
         self._repo.mark_used(record)
-        return record.userId
+        return True
 
