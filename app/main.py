@@ -7,9 +7,6 @@ from app.api.routes import auth, users
 
 setup_logging()
 
-# Create tables on startup (use Alembic for production migrations)
-Base.metadata.create_all(bind=engine)
-
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
