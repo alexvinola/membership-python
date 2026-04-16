@@ -7,15 +7,13 @@ from app.schemas.user import UserCreate, UserOut
 from app.services.auth_service import AuthService
 from app.services.email_service import EmailService
 from app.services.verification_service import VerificationService
-from app.uow.uow import UnitOfWork
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 def _build_auth_service(db: Session) -> AuthService:
-    uow = UnitOfWork(db)
-    verification_svc = VerificationService(repo=uow.verifications, email_svc=EmailService())
-    return AuthService(uow, verification_svc)
+    verification_svc = VerificationService(db=db, email_svc=EmailService())
+    return AuthService(db=db, verification_svc=verification_svc)
 
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)

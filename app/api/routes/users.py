@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.exceptions import NotFoundException, UnauthorizedException
 from app.core.security import decode_access_token
-from app.repositories.user_repository import UserRepository
+from app.models.user import User
 from app.schemas.user import UserOut, UserUpdate
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 router = APIRouter(prefix="/users", tags=["users"])
 _bearer = HTTPBearer()
@@ -26,7 +26,7 @@ def get_me(
     user_id: str = Depends(_current_user_id),
     db: Session = Depends(get_db),
 ):
-    user = UserRepository(db).get_by_id(user_id)
+    user = db.get(User, user_id)
     if not user:
         raise NotFoundException("User not found")
     return user
@@ -38,8 +38,11 @@ def update_me(
     user_id: str = Depends(_current_user_id),
     db: Session = Depends(get_db),
 ):
-    repo = UserRepository(db)
-    user = repo.get_by_id(user_id)
+    user = db.get(User, user_id)
     if not user:
         raise NotFoundException("User not found")
-    return repo.update(user, **data.model_dump(exclude_none=True))
+    for key, value in data.model_dump(exclude_none=True).items():
+        setattr(user, key, value)
+    db.commit()
+    db.refresh(user)
+    return user
